@@ -46,33 +46,41 @@ void excluir(Lista *lista, int numero) {
         return;
     }
 
+    No *temp = NULL;
+
     // excluir unico
     if ((lista->cabeca->numero == numero) &&
         (lista->cabeca->proximo == lista->cabeca)) {
+        temp = lista->cabeca;
         lista->cabeca = NULL;
+        free(temp);
         return;
     }
 
     // excluir o primeiro
     if (lista->cabeca->numero == numero) {
+        temp = lista->cabeca;
         No *ultimo = lista->cabeca;
         while (ultimo->proximo != lista->cabeca) {
             ultimo = ultimo->proximo;
         }
         lista->cabeca = lista->cabeca->proximo;
         ultimo->proximo = lista->cabeca;
+        free(temp);
     }
 
     // excluir no meio ou fim
     No *anterior = lista->cabeca;
-    while ((anterior->proximo != NULL) &&
+    while ((anterior->proximo != lista->cabeca) &&
            (anterior->proximo->numero != numero)) {
         anterior = anterior->proximo;
     }
     if (anterior->proximo == lista->cabeca) { // nao encontrei o numero
         return;
     }
-    anterior->proximo = anterior->proximo->proximo;
+    temp = anterior->proximo;
+    anterior->proximo = temp->proximo;
+    free(temp);
 }
 
 void imprimir(Lista *lista) {
@@ -84,6 +92,21 @@ void imprimir(Lista *lista) {
         printf("%d\n", ponteiro->numero);
         ponteiro = ponteiro->proximo;
     } while (ponteiro != lista->cabeca);
+}
+
+void liberarLista(Lista *lista) {
+    if (lista == NULL) return;
+
+    if (lista->cabeca != NULL) {
+        No *atual = lista->cabeca;
+        No *proximo;
+        do {
+            proximo = atual->proximo;
+            free(atual);
+            atual = proximo;
+        } while (atual != lista->cabeca);
+    }
+    free(lista);
 }
 
 int main(void) {
@@ -122,6 +145,7 @@ int main(void) {
                 break;
             case 5:
                 printf("Saindo");
+                liberarLista(lista);
                 break;
         }
     }
